@@ -1,0 +1,120 @@
+hub(5)
+======
+
+
+NAME
+----
+hub - syntax of XML files used to configure Haskell hubs
+
+
+SYNOPSIS
+--------
+
+A Hub configuration file is an XML file that always contains a
+`<hub>` node, which will contain a '<comnt>', `<hcbin>`, '<tlbin>' and
+`<glbdb>` sub-nodes.
+
+If (and only if) the file is configuring a user hub, it will also have a
+`<usrgh>` and `<usrdb>` sub-nodes and possibly a `<lockd>` sub-node.
+
+
+DESCRIPTION
+-----------
+
+`<comnt>`::
+
+    Brief single-line of text describing the hub.
+
+`<hcbin>`::
+
+    The path of the `bin` directory containing the `ghc` tools
+    to be used with the hub.
+    
+`<tlbin>`::
+    
+    The path of directory containing the generic tools (especially `cabal`)
+    to be used with the hub.
+
+`<glbdb>`::
+
+    The path of the global package database to be used with the
+    hub.
+
+`<usrgh>`::
+    
+    The name of the global hub associated with this user hub (present for
+    user hubs only).
+
+`<usrdb>`::
+
+    The path of the user package database to be used with the
+    hub (present for user hubs only).
+
+`<lockd>`::
+
+    The presence of this node signifies that the hub is locked. If it is
+    present it should contain the string "rmie".  (Only user hubs can
+    be locked.)
+
+
+EXAMPLE 1
+---------
+
+Hub configuration file for global hub `2011.2.0.1`:
+
+----
+    <hub>
+      <comnt>Haskell Platform 2011.2.0.1</comnt>
+      <hcbin>/usr/hs/ghc/7.0.3/bin</hcbin>
+      <glbdb>/usr/hs/db/2011.2.0.1.d</glbdb>
+    </hub>
+----
+
+
+EXAMPLE 2
+---------
+
+Hub configuration file for hub `home`, a user hub based
+on the global hub `7.4.1`:
+
+----
+    <hub>
+      <comnt>Hub for building the hub tool</comnt>
+      <hcbin>/usr/hs/ghc/7.4.1/bin</hcbin>
+      <tlbin>/usr/hs/tools</tlbin>
+      <usrgh>7.4.1</usrgh>
+      <glbdb>/usr/hs/db/7.4.1.d</glbdb>
+      <usrdb>/home/chris/.hubrc/lib/hub-src/package.config</usrdb>
+    </hub>
+----
+
+
+FILES
+-----
+
+`~/.hubrc/hub/<u-hub>.xml`::
+
+	Contains the hub-spefification file for user hub <u-hub>.
+
+`/usr/hs/hub/<g-hub>.xml`::
+
+    XML configuration file for global hub <g-hub>.
+
+
+SEE ALSO
+--------
+
+hub(1)::
+
+	The hub command for managing and configuring user hubs.
+
+
+http://justhub.org::
+
+	The home page of the JustHub distribution contains
+	introductory material and links to wikis and articles.
+
+
+AUTHOR
+------
+Chris Dornan <chris@chrisdornan.com>
