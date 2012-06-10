@@ -35,6 +35,12 @@ DESCRIPTION
     The path of directory containing the generic tools (especially `cabal`)
     to be used with the hub.
 
+`<civrn>`::
+    
+    The version of 'Cabal-install' to use with this hub. The presence of this
+    node is optional. When present it will force the use of
+    '<tlbin>/cabal-<civrn>' for the cabal executable.
+
 `<glbdb>`::
 
     The path of the global package database to be used with the
@@ -53,7 +59,7 @@ DESCRIPTION
 `<lockd>`::
 
     The presence of this node signifies that the hub is locked. If it is
-    present it should contain the string "rmie".  (Only user hubs can
+    present it should contain the string "rmie".  (Only user hubs may
     be locked.)
 
 
@@ -82,6 +88,7 @@ on the global hub `7.4.1`:
       <comnt>Hub for building the hub tool</comnt>
       <hcbin>/usr/hs/ghc/7.4.1/bin</hcbin>
       <tlbin>/usr/hs/tools</tlbin>
+      <civrn>0.14.0</civrn>
       <usrgh>7.4.1</usrgh>
       <glbdb>/usr/hs/db/7.4.1.d</glbdb>
       <usrdb>/home/chris/.hubrc/lib/hub-src/package.config</usrdb>

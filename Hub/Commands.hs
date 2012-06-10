@@ -116,8 +116,9 @@ _info hub = putStr $ unlines $
     [ printf "      GHC              : %s" hc                | Just hc <- [bin2toolchain hc_bin] ] ++
     [ printf "      Haskell Platform : %s" hp                | Just hp <- [db2platform   glb_db] ] ++
     [ printf "      Tools            : %s"         hc_bin                                        ] ++
-    [        "      Package DBs"                             |                         True      ] ++
-    [ printf "          global       : %-50s (%s)" glb_db gh |                         True      ] ++
+    [ printf "      Cabal Install    : %s"         cv        | Just cv <- [ci_vrn]               ] ++
+    [        "      Package DBs"                                                                 ] ++
+    [ printf "          global       : %-50s (%s)" glb_db gh                                     ] ++
     [ printf "          user         : %-50s (%s)" usr_db uh | Just usr_db <- [mb_ud], True      ]
   where
     hs     = case sourceHUB hub of
@@ -136,6 +137,7 @@ _info hub = putStr $ unlines $
     name   = name__HUB hub
     cmt0   = commntHUB hub
     hc_bin = hc_binHUB hub
+    ci_vrn = ci_vrnHUB hub
     glb_db = glb_dbHUB hub
     mb_ud  = usr_dbHUB hub
 

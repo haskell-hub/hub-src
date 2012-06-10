@@ -1,5 +1,5 @@
 Name:                   hub
-Version:                1.0.0
+Version:                1.1.0
 Copyright:              Chris Dornan, 2011-2012
 Maintainer:             Chris Dornan <chris@chrisdornan.com>
 Author:                 Chris Dornan <chris@chrisdornan.com>
@@ -14,8 +14,8 @@ Description:            This package provides a utility for multiplexing
                         .
                         The package also provides flexible development sandboxes 
                         (aka /hubs/) into which packages can be installed
-                        and subsequently erased. Command are provided for
-                        (re)naming, sharing, replicating, swapping, archiving,
+                        and subsequently erased. Commands are provided for
+                        (re)naming, annotating, replicating, swapping, archiving,
                         locking and removing hubs. E.g.,
                         .
                         > hub init
@@ -56,6 +56,7 @@ Description:            This package provides a utility for multiplexing
 Stability:              Beta
 Category:               Development, Distribution
 Homepage:               https://justhub.org
+Bug-Reports:            https://github.com/haskell-hub/hub-src/issues
 Build-type:             Simple
 Cabal-version:          >= 1.10
 

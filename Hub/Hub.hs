@@ -47,6 +47,7 @@ data Hub = HUB
     , commntHUB :: String
     , hc_binHUB :: FilePath
     , tl_binHUB :: FilePath
+    , ci_vrnHUB :: Maybe String
     , glb_dbHUB :: FilePath
     , usr___HUB :: Maybe UsrHub
     }                                                           deriving (Show)
@@ -141,8 +142,8 @@ mk_prog hub prog as0 =
         return (exe,as,tdy)
       where
         exe =   case typPROG prog of
-                  HcPT -> hc_binHUB hub </> nmePROG prog
-                  TlPT -> tl_binHUB hub </> nmePROG prog
+                  HcPT -> hc_binHUB hub </> nmePROG       prog
+                  TlPT -> tl_binHUB hub </> prog_name hub prog
 
         hk  =   kind__HUB hub
 
@@ -152,6 +153,12 @@ mk_prog hub prog as0 =
                 let _ld = "--libdir="     ++ hd
                     _pd = "--package-db=" ++ db
                 return ( cmd : _ld : _pd : as', Just hd )
+
+prog_name :: Hub -> Prog -> FilePath
+prog_name hub prog =
+        case (enmPROG prog,ci_vrnHUB hub) of
+          (CabalP,Just ci_vrn) -> nmePROG prog ++ "-" ++ ci_vrn
+          _                    -> nmePROG prog
 
 hub_env :: Mode -> Hub -> String -> [(String,String)]
 hub_env mde hub pth0 = concat

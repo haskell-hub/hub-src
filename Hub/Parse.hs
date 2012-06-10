@@ -44,6 +44,8 @@ dump hub = B.writeFile path xml_bs
             , printf "  <hcbin>%s</hcbin>" $ string2xml hcbin
             , printf "  <tlbin>%s</tlbin>" $ string2xml tlbin
             ] ++
+            [ printf "  <civrn>%s</civrn>" $ string2xml civrn | Just civrn<-[mb_civrn]
+            ] ++
             [ printf "  <glbdb>%s</glbdb>" $ string2xml glbdb
             ] ++
             [ printf "  <usrgh>%s</usrgh>" $ string2xml usrgh | Just usrgh<-[mb_usrgh]
@@ -65,6 +67,7 @@ dump hub = B.writeFile path xml_bs
         comnt    = commntHUB hub
         hcbin    = hc_binHUB hub
         tlbin    = tl_binHUB hub
+        mb_civrn = ci_vrnHUB hub
         glbdb    = glb_dbHUB hub
         mb_uh    = usr___HUB hub
 
@@ -109,6 +112,7 @@ check hs dy hn hf hk (X.Element "hub" [] ns lc) =
                     , chk_comnt
                     , chk_hcbin
                     , chk_tlbin
+                    , chk_civrn
                     , chk_glbdb
                     , chk_usrdb
                     , chk_usrgh
@@ -126,6 +130,7 @@ data PSt = ST
     , comntST :: Maybe String
     , hcbinST :: Maybe FilePath
     , tlbinST :: Maybe FilePath
+    , civrnST :: Maybe FilePath
     , glbdbST :: Maybe FilePath
     , usrghST :: Maybe FilePath
     , usrdbST :: Maybe FilePath
@@ -134,7 +139,7 @@ data PSt = ST
 
 start :: HubName -> FilePath -> Loc -> PSt
 start hn fp lc =
-            ST hn fp lc Nothing Nothing Nothing Nothing Nothing Nothing Nothing
+    ST hn fp lc Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing
 
 final :: HubSource -> FilePath -> HubKind -> Poss Err PSt -> Poss Err Hub
 final _  _  _  (NOPE er) = NOPE er
@@ -142,17 +147,19 @@ final hs dy hk (YUP  st) =
      do co    <- get_co
         hc    <- get_hc
         tl    <- get_tl
+        cv    <- get_cv
         gl    <- get_gl
         mb_pr <- case (mb_ur,mb_gh) of
                    (Just ur,Nothing) -> (Just . ((,) ur)) `fmap` calc_gh gl
                    (Just ur,Just gh) -> return $ Just (ur,gh)
                    (Nothing,_      ) -> return Nothing
-        return $ HUB hs hn hk hf co hc tl gl $ fmap mk_uhb mb_pr
+        return $ HUB hs hn hk hf co hc tl cv gl $ fmap mk_uhb mb_pr
       where
-        get_co = maybe (YUP   ""      ) YUP mb_co
-        get_hc = maybe (NOPE  hc_err  ) YUP mb_hc
-        get_tl = maybe (YUP $ toolsBin) YUP mb_tl
-        get_gl = maybe (NOPE  gl_err  ) YUP mb_gl
+        get_co = maybe (YUP  ""      )  YUP         mb_co
+        get_hc = maybe (NOPE hc_err  )  YUP         mb_hc
+        get_tl = maybe (YUP  toolsBin)  YUP         mb_tl
+        get_cv = maybe (YUP  Nothing ) (YUP . Just) mb_cv
+        get_gl = maybe (NOPE gl_err  )  YUP         mb_gl
 
         hc_err = err lc "Hub doesn't specify a GHC bin directory"
         gl_err = err lc "Hub doesn't specify a global package directory"
@@ -167,7 +174,7 @@ final hs dy hk (YUP  st) =
                 msg = "Could not derive the global hub name from the "
                                    ++ "filepath of the global package databse"
 
-        ST hn hf lc mb_co mb_hc mb_tl mb_gl mb_gh mb_ur mb_lk = st
+        ST hn hf lc mb_co mb_hc mb_tl mb_cv mb_gl mb_gh mb_ur mb_lk = st
 
 trial :: PSt -> Node -> (PSt -> Node -> Maybe(Poss Err PSt)) -> Poss Err PSt -> Poss Err PSt
 trial st nd f ps = maybe ps id $ f st nd
@@ -179,7 +186,7 @@ unrecognised st (X.Text    tx       ) = err lc $ printf "unexpected text: %s" tx
                                                           lc = locwfST st
 
 chk_comnt, chk_wspce, chk_hcbin, chk_tlbin,
-        chk_glbdb, chk_usrgh, chk_usrdb,
+        chk_civrn, chk_glbdb, chk_usrgh, chk_usrdb,
         chk_hpbin, chk_cibin, chk_lockd :: PSt -> Node -> Maybe(Poss Err PSt)
 
 chk_wspce st nd =
@@ -211,6 +218,13 @@ chk_tlbin st0 nd = simple_node False st0 nd "tlbin" chk
                         case tlbinST st of
                           Nothing -> YUP (st{tlbinST=Just arg})
                           Just _  -> NOPE $ err lc "<cibin> re-specified"
+
+chk_civrn st0 nd = simple_node False st0 nd "civrn" chk
+              where
+                chk st lc arg =
+                        case civrnST st of
+                          Nothing -> YUP (st{civrnST=Just arg})
+                          Just _  -> NOPE $ err lc "<civrn> re-specified"
 
 chk_glbdb st0 nd = simple_node False st0 nd "glbdb" chk
               where
