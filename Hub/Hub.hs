@@ -29,6 +29,7 @@ module Hub.Hub
 
 import           Data.Char
 import           Text.Printf
+--import           System.IO
 import           System.Exit
 import           System.FilePath
 import           System.Environment
@@ -119,6 +120,18 @@ execProg o ee0 mde hub prog args0 =
         (exe,args,tdy) <- mk_prog hub prog args0
         pth0 <- getEnv "PATH"
         let ee = ee0 { extendEnvtEE = hub_env mde hub pth0 ++ extendEnvtEE ee0 }
+    --  h <- openFile "/hub/src/exec.log" AppendMode
+    --  hPutStrLn h "----- ee -------------"
+    --  hPutStrLn h $ show ee
+    --  hPutStrLn h "----- exe ------------"
+    --  hPutStrLn h $ show exe
+    --  hPutStrLn h "----- args -----------"
+    --  hPutStrLn h $ show args
+    --  hPutStrLn h "----- tdy ------------"
+    --  hPutStrLn h $ show tdy
+    --  hPutStrLn h "----------------------"
+    --  hPutStrLn h ""
+    --  hClose h
         ec   <- exec ee exe args
         case tdy of
           Nothing -> return ()
@@ -152,7 +165,8 @@ mk_prog hub prog as0 =
                 db <- hubUserPackageDBPath hub
                 let _ld = "--libdir="     ++ hd
                     _pd = "--package-db=" ++ db
-                return ( cmd : _ld : _pd : as', Just hd )
+                    _hc = "--with-hsc2hs=hsc2hs"
+                return ( cmd : _ld : _pd : _hc : as', Just hd )
 
 prog_name :: Hub -> Prog -> FilePath
 prog_name hub prog =

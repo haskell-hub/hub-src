@@ -36,6 +36,7 @@ import           System.Directory
 import           System.Posix.Env
 import           System.Posix.Files
 import           System.Posix.Process
+--import           System.Posix.Signals
 import           System.Posix.IO
 import           Text.Printf
 import qualified Data.ByteString.UTF8   as U
@@ -172,9 +173,13 @@ exec ee pr as =
      do so <- get_ss $ redirctOutEE ee
         se <- get_ss $ redirctErrEE ee
         ev <- get_ev $ extendEnvtEE ee
-        let cp = (proc pr as) { std_out = so, std_err = se, env=ev }
+        let cp = (proc pr as) { std_out = so, std_err = se, env=ev, create_group=False }
         (_,_,_,ph) <- createProcess cp
+     -- i_sh       <- installHandler sigINT  (Catch $ ppg ph) Nothing
+     -- q_sh       <- installHandler sigQUIT (Catch $ ppg ph) Nothing
         ex <- waitForProcess ph
+     -- _          <- installHandler sigINT  i_sh             Nothing
+     -- _          <- installHandler sigQUIT q_sh             Nothing
         clse so
         clse se
         return ex
@@ -193,6 +198,15 @@ exec ee pr as =
                     f (nm,_) = not $ Map.member nm st
               --putStrLn $ printf "---\n%s\n---\n\n" $ show (bs ++ filter f bs0)
                 return $ Just $ bs ++ filter f bs0
+
+    --  ppg ph = lg "INT/QUIT" >> interruptProcessGroupOf ph
+    --
+    --  lg msg =
+    --       do h <- openFile "/hub/src/exec.log" AppendMode
+    --          hPutStrLn h "----- exec -----------"
+    --          hPutStrLn h $ show msg
+    --          hPutStrLn h "----------------------"
+    --          hClose h
 
 readAFile :: FilePath -> IO String
 readAFile fp = U.toString `fmap` B.readFile fp
