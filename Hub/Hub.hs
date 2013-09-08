@@ -119,7 +119,7 @@ execProg o ee0 mde hub prog args0 =
           _                 -> return ()
         (exe,args,tdy) <- mk_prog hub prog args0
         pth0 <- getEnv "PATH"
-        let ee = ee0 { extendEnvtEE = hub_env mde hub pth0 ++ extendEnvtEE ee0 }
+        let ee = ee0 { extendEnvtEE = hub_env prog mde hub pth0 ++ extendEnvtEE ee0 }
     --  h <- openFile "/hub/src/exec.log" AppendMode
     --  hPutStrLn h "----- ee -------------"
     --  hPutStrLn h $ show ee
@@ -174,11 +174,11 @@ prog_name hub prog =
           (CabalP,Just ci_vrn) -> nmePROG prog ++ "-" ++ ci_vrn
           _                    -> nmePROG prog
 
-hub_env :: Mode -> Hub -> String -> [(String,String)]
-hub_env mde hub pth0 = concat
+hub_env :: Prog -> Mode -> Hub -> String -> [(String,String)]
+hub_env prog mde hub pth0 = concat
         [ [ (,) "HUB"               hnm          ]
         , [ (,) "PATH"              pth | is_usr ]
-        , [ (,) "GHC_PACKAGE_PATH"  ppt | is_usr ]
+        , [ (,) "GHC_PACKAGE_PATH"  ppt | is_usr && enmPROG prog /= CabalP ]
         ]
       where
         is_usr     = hk /= GlbHK
