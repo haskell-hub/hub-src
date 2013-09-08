@@ -391,7 +391,7 @@ ls_usr_hubs =
 
 pkg_init :: Hub -> FilePath -> IO ()
 pkg_init hub fp =
-        execP HubO (EE InheritRS InheritRS []) FullMDE hub Ghc_pkgP ["init",fp]
+        execP HubO (EE InheritRS InheritRS [] []) FullMDE hub Ghc_pkgP ["init",fp]
 
 
 user_hub_paths :: HubName -> IO (FilePath,FilePath,FilePath)

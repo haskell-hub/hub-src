@@ -205,7 +205,7 @@ packageDB hub =
 package_dump :: Hub -> IO String
 package_dump hub =
      do tf <- tmpFile "pkg-dump.txt"
-        let ee = EE (RedirctRS tf) DiscardRS []
+        let ee = EE (RedirctRS tf) DiscardRS [] []
         execP HubO ee UserMDE hub Ghc_pkgP ["dump"]
         ct <- readAFile tf
         removeFile tf

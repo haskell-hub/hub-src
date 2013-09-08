@@ -25,6 +25,7 @@ module Hub.Hub
     , Mode(..)
     , execP
     , execProg
+    , hub_ftr_env
     ) where
 
 import           Data.Char
@@ -119,7 +120,12 @@ execProg o ee0 mde hub prog args0 =
           _                 -> return ()
         (exe,args,tdy) <- mk_prog hub prog args0
         pth0 <- getEnv "PATH"
-        let ee = ee0 { extendEnvtEE = hub_env prog mde hub pth0 ++ extendEnvtEE ee0 }
+        let p  = enmPROG prog
+            ee = 
+                ee0 
+                    { extendEnvtEE = hub_env     p mde hub pth0 ++ extendEnvtEE ee0
+                    , filterEnvtEE = hub_ftr_env p              ++ filterEnvtEE ee0
+                    }
     --  h <- openFile "/hub/src/exec.log" AppendMode
     --  hPutStrLn h "----- ee -------------"
     --  hPutStrLn h $ show ee
@@ -174,11 +180,11 @@ prog_name hub prog =
           (CabalP,Just ci_vrn) -> nmePROG prog ++ "-" ++ ci_vrn
           _                    -> nmePROG prog
 
-hub_env :: Prog -> Mode -> Hub -> String -> [(String,String)]
-hub_env prog mde hub pth0 = concat
+hub_env :: P -> Mode -> Hub -> String -> [(String,String)]
+hub_env p mde hub pth0 = concat
         [ [ (,) "HUB"               hnm          ]
         , [ (,) "PATH"              pth | is_usr ]
-        , [ (,) "GHC_PACKAGE_PATH"  ppt | is_usr && enmPROG prog /= CabalP ]
+        , [ (,) "GHC_PACKAGE_PATH"  ppt | is_usr && p /= CabalP ]
         ]
       where
         is_usr     = hk /= GlbHK
@@ -197,6 +203,10 @@ hub_env prog mde hub pth0 = concat
         hk         = kind__HUB hub
         mb_usr     = usr___HUB hub
         glb        = glb_dbHUB hub
+
+hub_ftr_env :: P -> [String]
+hub_ftr_env CabalP = ["GHC_PACKAGE_PATH"]
+hub_ftr_env _      = []
 
 
 --

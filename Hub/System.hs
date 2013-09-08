@@ -160,6 +160,7 @@ data ExecEnv = EE
     { redirctOutEE :: RedirectStream
     , redirctErrEE :: RedirectStream
     , extendEnvtEE :: [(String,String)]
+    , filterEnvtEE :: [String]
     }                                                           deriving (Show)
 
 data RedirectStream
@@ -172,7 +173,7 @@ exec :: ExecEnv -> FilePath -> [String] -> IO ExitCode
 exec ee pr as =
      do so <- get_ss $ redirctOutEE ee
         se <- get_ss $ redirctErrEE ee
-        ev <- get_ev $ extendEnvtEE ee
+        ev <- get_ev  (extendEnvtEE ee) (filterEnvtEE ee)
         let cp = (proc pr as) { std_out = so, std_err = se, env=ev, create_group=False }
         (_,_,_,ph) <- createProcess cp
      -- i_sh       <- installHandler sigINT  (Catch $ ppg ph) Nothing
@@ -191,11 +192,11 @@ exec ee pr as =
         clse (UseHandle h) = hClose h
         clse _             = return ()
 
-        get_ev [] = return Nothing
-        get_ev bs =
+        get_ev [] [] = return Nothing
+        get_ev bs ds =
              do bs0 <- getEnvironment
                 let st       = Map.fromList bs
-                    f (nm,_) = not $ Map.member nm st
+                    f (nm,_) = not (Map.member nm st) && not (nm `elem` ds)
               --putStrLn $ printf "---\n%s\n---\n\n" $ show (bs ++ filter f bs0)
                 return $ Just $ bs ++ filter f bs0
 

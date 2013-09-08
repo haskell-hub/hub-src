@@ -56,8 +56,9 @@ import           Hub.SaveLoad
 
 
 _prog :: Hub -> Prog -> [String] -> IO ()
-_prog = execProg HubO (EE InheritRS InheritRS []) FullMDE
-
+_prog hub prog as = execProg HubO (EE InheritRS InheritRS [] ftr) FullMDE hub prog as
+  where
+    ftr = hub_ftr_env $ enmPROG prog
 
 _default :: IO ()
 _default = defaultGlobalHubName >>= putStrLn
@@ -200,10 +201,10 @@ _gc :: IO ()
 _gc = gcDefaultDirectory discover VerboseGCM
 
 _list :: Hub -> IO ()
-_list hub = execP HubO (EE InheritRS InheritRS []) FullMDE hub Ghc_pkgP ["list"]
+_list hub = execP HubO (EE InheritRS InheritRS [] []) FullMDE hub Ghc_pkgP ["list"]
 
 _check :: Hub -> IO ()
-_check hub = execP HubO (EE InheritRS InheritRS []) FullMDE hub Ghc_pkgP ["check"]
+_check hub = execP HubO (EE InheritRS InheritRS [] []) FullMDE hub Ghc_pkgP ["check"]
 
 _save :: Hub -> IO ()
 _save = save
@@ -246,7 +247,7 @@ _verify hub sf =
 _install :: Hub -> [PkgNick] -> IO ()
 _install hub pkns =
      do notLocked hub
-        execP HubO (EE InheritRS InheritRS []) FullMDE hub CabalP
+        execP HubO (EE InheritRS InheritRS [] []) FullMDE hub CabalP
                                             ("install":map prettyPkgNick pkns)
 
 _erase :: Hub -> [PkgNick] -> Bool -> IO ()
@@ -272,5 +273,5 @@ _erase hub pkns0 ff =
       where
         fmt   pkn = "  " ++ prettyPkgNick pkn
 
-        unreg pkn = execP HubO (EE InheritRS DiscardRS []) UserMDE hub
+        unreg pkn = execP HubO (EE InheritRS DiscardRS [] []) UserMDE hub
                                     Ghc_pkgP ["unregister",prettyPkgNick pkn]
