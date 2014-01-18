@@ -174,7 +174,14 @@ exec ee pr as =
      do so <- get_ss $ redirctOutEE ee
         se <- get_ss $ redirctErrEE ee
         ev <- get_ev  (extendEnvtEE ee) (filterEnvtEE ee)
-        let cp = (proc pr as) { std_out = so, std_err = se, env=ev, create_group=False }
+        let cp =
+              (proc pr as)
+                { std_out       = so
+                , std_err       = se
+                , env           = ev
+                , create_group  = False
+                , delegate_ctlc = True
+                }
         (_,_,_,ph) <- createProcess cp
      -- i_sh       <- installHandler sigINT  (Catch $ ppg ph) Nothing
      -- q_sh       <- installHandler sigQUIT (Catch $ ppg ph) Nothing
