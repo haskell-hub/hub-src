@@ -11,9 +11,9 @@ hub: prep
 	$(HC) -o $(OD)/hub hub.hs
 
 prep:
-	hub load    build-hub <build-hub.har || printf $(OP)
-	hub comment build-hub $(CM)          || true
-	hub set     build-hub                || true
+	hub load    build-hub <hub.manifest || printf $(OP)
+	hub comment build-hub $(CM)         || true
+	hub set     build-hub               || true
 	runhaskell prep
 
 install:

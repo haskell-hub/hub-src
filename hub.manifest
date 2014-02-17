@@ -1,5 +1,12 @@
 ^=7.6.3
 List-0.5.1
-hexpat-0.20.5
+fgl-5.4.2.4
+hexpat-0.20.6
+mtl-2.1.2
 process-1.2.0.0
+regex-base-0.93.2
+regex-compat-0.95.1
+regex-posix-0.95.2
+text-1.1.0.0
+transformers-0.3.0.0
 utf8-string-0.3.7
