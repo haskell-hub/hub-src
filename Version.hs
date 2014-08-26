@@ -13,7 +13,7 @@ module Version
 
 
 version :: String
-version = "1.3.0"
+version = "1.3.1"
 
 
 main :: IO ()
