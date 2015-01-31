@@ -41,6 +41,7 @@ data P
     | HappyP
     | HaddockP
     | GhcModP
+    | GhcModiP
     | HLintP
     | HDevToolsP
     | HaskellDocsP
@@ -63,6 +64,7 @@ p2prog p =
       AlexP              -> PROG p "alex"             TlPT
       HappyP             -> PROG p "happy"            TlPT
       GhcModP            -> PROG p "ghc-mod"          TlPT
+      GhcModiP           -> PROG p "ghc-modi"         TlPT
       HLintP             -> PROG p "hlint"            TlPT
       HDevToolsP         -> PROG p "hdevtools"        TlPT
       HaskellDocsP       -> PROG p "haskell-docs"     TlPT
