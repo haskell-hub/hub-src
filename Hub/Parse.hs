@@ -4,7 +4,7 @@
 -- This module parses the hub XML file to produce a Hub, and the inverse,
 -- dumping a Hub into XML.
 --
--- (c) 2011-2012 Chris Dornan
+-- (c) 2011-2015 Chris Dornan
 
 
 module Hub.Parse
@@ -54,6 +54,8 @@ dump hub = B.writeFile path xml_bs
             ] ++
             [ printf "  <lockd>%s</lockd>"                lks | not $ null lks
             ] ++
+            [ printf "  <insta>%s</insta>" $ string2xml $ unwords insa | not $ null insa
+            ] ++
             [        "</hub>"
             ]
 
@@ -70,6 +72,7 @@ dump hub = B.writeFile path xml_bs
         mb_civrn = ci_vrnHUB hub
         glbdb    = glb_dbHUB hub
         mb_uh    = usr___HUB hub
+        insa     = inst_aHUB hub
 
 
 fail_err :: HubName -> FilePath -> Err -> IO a
@@ -117,6 +120,7 @@ check hs dy hn hf hk (X.Element "hub" [] ns lc) =
                     , chk_usrdb
                     , chk_usrgh
                     , chk_lockd
+                    , chk_insta
                     -- depracated (no warnings yet)
                     , chk_hpbin
                     , chk_cibin
@@ -135,11 +139,12 @@ data PSt = ST
     , usrghST :: Maybe FilePath
     , usrdbST :: Maybe FilePath
     , lockdST :: Maybe Bool
+    , instaST :: Maybe [String]
     }                                                            deriving (Show)
 
 start :: HubName -> FilePath -> Loc -> PSt
 start hn fp lc =
-    ST hn fp lc Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing
+    ST hn fp lc Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing Nothing
 
 final :: HubSource -> FilePath -> HubKind -> Poss Err PSt -> Poss Err Hub
 final _  _  _  (NOPE er) = NOPE er
@@ -149,17 +154,19 @@ final hs dy hk (YUP  st) =
         tl    <- get_tl
         cv    <- get_cv
         gl    <- get_gl
+        ia    <- get_ia
         mb_pr <- case (mb_ur,mb_gh) of
                    (Just ur,Nothing) -> (Just . ((,) ur)) `fmap` calc_gh gl
                    (Just ur,Just gh) -> return $ Just (ur,gh)
                    (Nothing,_      ) -> return Nothing
-        return $ HUB hs hn hk hf co hc tl cv gl $ fmap mk_uhb mb_pr
+        return $ HUB hs hn hk hf co hc tl cv gl ia $ fmap mk_uhb mb_pr
       where
         get_co = maybe (YUP  ""      )  YUP         mb_co
         get_hc = maybe (NOPE hc_err  )  YUP         mb_hc
         get_tl = maybe (YUP  toolsBin)  YUP         mb_tl
         get_cv = maybe (YUP  Nothing ) (YUP . Just) mb_cv
         get_gl = maybe (NOPE gl_err  )  YUP         mb_gl
+        get_ia = maybe (YUP []       )  YUP         mb_ia
 
         hc_err = err lc "Hub doesn't specify a GHC bin directory"
         gl_err = err lc "Hub doesn't specify a global package directory"
@@ -174,7 +181,7 @@ final hs dy hk (YUP  st) =
                 msg = "Could not derive the global hub name from the "
                                    ++ "filepath of the global package databse"
 
-        ST hn hf lc mb_co mb_hc mb_tl mb_cv mb_gl mb_gh mb_ur mb_lk = st
+        ST hn hf lc mb_co mb_hc mb_tl mb_cv mb_gl mb_gh mb_ur mb_lk mb_ia = st
 
 trial :: PSt -> Node -> (PSt -> Node -> Maybe(Poss Err PSt)) -> Poss Err PSt -> Poss Err PSt
 trial st nd f ps = maybe ps id $ f st nd
@@ -187,7 +194,7 @@ unrecognised st (X.Text    tx       ) = err lc $ printf "unexpected text: %s" tx
 
 chk_comnt, chk_wspce, chk_hcbin, chk_tlbin,
         chk_civrn, chk_glbdb, chk_usrgh, chk_usrdb,
-        chk_hpbin, chk_cibin, chk_lockd :: PSt -> Node -> Maybe(Poss Err PSt)
+        chk_hpbin, chk_cibin, chk_lockd, chk_insta :: PSt -> Node -> Maybe(Poss Err PSt)
 
 chk_wspce st nd =
         case nd of
@@ -253,6 +260,13 @@ chk_lockd st0 nd = simple_node False st0 nd "lockd" chk
                         case lockdST st of
                           Nothing -> YUP (st{lockdST=Just $ not $ all isSpace arg})
                           Just _  -> NOPE $ err lc "<lockd> respecified"
+
+chk_insta st0 nd = simple_node True st0 nd "insta" chk
+              where
+                chk st lc arg =
+                        case instaST st of
+                          Nothing -> YUP (st{instaST=Just $ words arg})
+                          Just _  -> NOPE $ err lc "<insta> respecified"
 
 -- deprecated (pre-0.3) constructions
 

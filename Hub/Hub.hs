@@ -6,7 +6,7 @@
 -- the 'exec' utilities for setting up the PATH, GHC_PACKAGE_PATH and munging
 -- cabal's command-line arguments, etc.
 --
--- (c) 2011-2012 Chris Dornan
+-- (c) 2011-2015 Chris Dornan
 
 
 module Hub.Hub
@@ -51,6 +51,7 @@ data Hub = HUB
     , tl_binHUB :: FilePath
     , ci_vrnHUB :: Maybe String
     , glb_dbHUB :: FilePath
+    , inst_aHUB :: [String]
     , usr___HUB :: Maybe UsrHub
     }                                                           deriving (Show)
 

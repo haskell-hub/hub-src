@@ -3,7 +3,7 @@
 --
 -- This module reestablishes an unvandalised monadic Either type.
 --
--- (c) 2011-2012 Chris Dornan
+-- (c) 2011-2015 Chris Dornan
 
 
 module Hub.Poss
@@ -12,11 +12,17 @@ module Hub.Poss
     , ei2ps
     ) where
 
+import Control.Applicative
+
 data Poss e a = NOPE e | YUP a
                                                                 deriving (Show)
 instance Monad (Poss e) where
     (>>=) ps f = poss NOPE f ps
     return     = YUP
+
+instance Applicative (Poss e) where
+	(<*>) ps ps' = do f <- ps; x<-ps'; return $ f x
+	pure         = return
 
 instance Functor (Poss e) where
     fmap f p = poss NOPE (YUP . f) p

@@ -3,7 +3,7 @@
 --
 -- Keeper of the version information.
 --
--- (c) 2011-2012 Chris Dornan
+-- (c) 2011-2015 Chris Dornan
 
 
 module Version
@@ -13,7 +13,7 @@ module Version
 
 
 version :: String
-version = "1.3.1"
+version = "1.4.0"
 
 
 main :: IO ()

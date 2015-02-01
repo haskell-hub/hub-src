@@ -4,7 +4,7 @@
 -- This module provides the routines the Main dispatcher calls fater analysing
 -- the CommandLine AST.
 --
--- (c) 2011-2012 Chris Dornan
+-- (c) 2011-2015 Chris Dornan
 
 
 module Hub.Commands
@@ -248,7 +248,7 @@ _install :: Hub -> [PkgNick] -> IO ()
 _install hub pkns =
      do notLocked hub
         execP HubO (EE InheritRS InheritRS [] []) FullMDE hub CabalP
-                                            ("install":map prettyPkgNick pkns)
+                                            ("install":inst_aHUB hub++map prettyPkgNick pkns)
 
 _erase :: Hub -> [PkgNick] -> Bool -> IO ()
 _erase hub pkns0 ff =

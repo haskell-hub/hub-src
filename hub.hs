@@ -3,7 +3,7 @@
 --
 -- Main driver for the hub tool (see the README for details).
 --
--- (c) 2011-2012 Chris Dornan
+-- (c) 2011-2015 Chris Dornan
 
 
 module Main(main) where
