@@ -24,6 +24,7 @@ SYNOPSIS
     hub xml            [<hub>]
     hub init [-n       [<hub>]]
     hub init [-s]      [<hub>]   <u-hub'>
+    hub init  -x        <hub>   [<u-hub'>]
     hub comment        [<u-hub>] <comment-string>
     hub cp             [<u-hub>] <u-hub'>
     hub mv             [<u-hub>] <u-hub'>
@@ -237,6 +238,12 @@ COMMANDS
      If <hub> is specified then the global hub for the new hub is determined by
      this hub otherwise the default hub is used. Iff -s is specified
      the hub associated with the current directory is set to the new hub.
+
+
+`hub init -x         <hub>   [<u-hub'>`]::
+
+     Create a cabal sandbox in the current directory and set up a
+     hub to use it.
 
 
 `hub cp      [<u-hub>] <u-hub'>`::

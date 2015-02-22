@@ -175,9 +175,9 @@ _path hub = putStrLn $ path__HUB hub
 _xml :: Hub -> IO ()
 _xml hub = readAFile (path__HUB hub) >>= putStr
 
-_init :: Hub -> HubName -> Bool -> IO ()
-_init hub0 hn sf =
-     do hub <- createHub' False hub0 hn sf
+_init :: Hub -> HubName -> Bool -> Bool -> IO ()
+_init hub0 hn sf xf =
+     do hub <- createHub' False hub0 hn sf xf
         when sf $ _set hub
 
 _comment :: Hub -> String -> IO ()

@@ -1,3 +1,4 @@
+.cabal-sandbox
 .hub
 .project
 dist
@@ -7,3 +8,4 @@ System
 *.hi
 *.o
 PACKAGE_ME
+cabal.sandbox.config

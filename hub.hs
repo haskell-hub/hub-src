@@ -44,7 +44,7 @@ main =
           UnlockCL  hub          -> _unlock  hub
           PathCL    hub          -> _path    hub
           XmlCL     hub          -> _xml     hub
-          InitCL    hub hn set   -> _init    hub hn set
+          InitCL    hub hn sf xf -> _init    hub hn sf xf
           CommentCL hub    cmt   -> _comment hub cmt
           CpCL      hub hn       -> _cp      hub hn
           MvCL      hub hn       -> _mv      hub hn

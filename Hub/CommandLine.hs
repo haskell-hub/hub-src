@@ -52,7 +52,7 @@ data CommandLine
     | UnlockCL  Hub
     | PathCL    Hub
     | XmlCL     Hub
-    | InitCL    Hub HubName Bool            -- -s
+    | InitCL    Hub HubName Bool Bool       -- -s -x        (-x => -s)
     | CommentCL Hub String
     | CpCL      Hub HubName
     | MvCL      Hub HubName
@@ -68,6 +68,9 @@ data CommandLine
     | EraseCL   Hub         [PkgNick] Bool  -- -f
                                                                 deriving (Show)
 
+
+data InitType = SetIT | NoSetIT | SandboxIT
+                                                                deriving (Show)
 
 
 prog, hub_dispatch :: [String] -> IO (Maybe CommandLine)
@@ -113,13 +116,15 @@ hub_dispatch as = case as of
     ["path"        ,hn       ] -> discover (Just   hn)      >>= \ hub       -> return $ Just $ PathCL    hub
     ["xml"                   ] -> discover Nothing          >>= \ hub       -> return $ Just $ XmlCL     hub
     ["xml"         ,hn       ] -> discover (Just   hn)      >>= \ hub       -> return $ Just $ XmlCL     hub
-    ["init"                  ] -> hub_uniq Nothing          >>= \(hub,hn')  -> return $ Just $ InitCL    hub hn' True
-    ["init","-n"             ] -> hub_uniq Nothing          >>= \(hub,hn')  -> return $ Just $ InitCL    hub hn' True
-    ["init","-n"   ,hn       ] -> hub_uniq (Just hn)        >>= \(hub,hn')  -> return $ Just $ InitCL    hub hn' True
-    ["init","-s"      ,hn'   ] -> hub_pair Nothing     hn'  >>= \ hub       -> return $ Just $ InitCL    hub hn' True
-    ["init","-s"   ,hn,hn'   ] -> hub_pair (Just   hn) hn'  >>= \ hub       -> return $ Just $ InitCL    hub hn' True
-    ["init"           ,hn'   ] -> hub_pair Nothing     hn'  >>= \ hub       -> return $ Just $ InitCL    hub hn' False
-    ["init"        ,hn,hn'   ] -> hub_pair (Just   hn) hn'  >>= \ hub       -> return $ Just $ InitCL    hub hn' False
+    ["init"                  ] -> hub_uniq Nothing          >>= \(hub,hn')  -> return $ Just $ InitCL    hub hn' True  False
+    ["init","-n"             ] -> hub_uniq Nothing          >>= \(hub,hn')  -> return $ Just $ InitCL    hub hn' True  False
+    ["init","-n"   ,hn       ] -> hub_uniq (Just hn)        >>= \(hub,hn')  -> return $ Just $ InitCL    hub hn' True  False
+    ["init","-s"      ,hn'   ] -> hub_pair Nothing     hn'  >>= \ hub       -> return $ Just $ InitCL    hub hn' True  False
+    ["init","-s"   ,hn,hn'   ] -> hub_pair (Just   hn) hn'  >>= \ hub       -> return $ Just $ InitCL    hub hn' True  False
+    ["init","-x"   ,hn       ] -> hub_uniq (Just hn)        >>= \(hub,hn')  -> return $ Just $ InitCL    hub hn' True  True
+    ["init","-x"   ,hn,hn'   ] -> hub_pair (Just   hn) hn'  >>= \ hub       -> return $ Just $ InitCL    hub hn' True  True
+    ["init"           ,hn'   ] -> hub_pair Nothing     hn'  >>= \ hub       -> return $ Just $ InitCL    hub hn' False False
+    ["init"        ,hn,hn'   ] -> hub_pair (Just   hn) hn'  >>= \ hub       -> return $ Just $ InitCL    hub hn' False False
     ["comment"        ,cmt   ] -> discover Nothing          >>= \ hub       -> return $ Just $ CommentCL hub cmt
     ["comment"     ,hn,cmt   ] -> discover (Just   hn)      >>= \ hub       -> return $ Just $ CommentCL hub cmt
     ["cp"             ,hn'   ] -> hub_pair Nothing     hn'  >>= \ hub       -> return $ Just $ CpCL      hub hn'

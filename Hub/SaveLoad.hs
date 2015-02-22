@@ -64,7 +64,7 @@ load hn mb_hub0 vy =
                   _                            -> oops HubO mm_msg
         g_hub <- discover $ Just gh
         hub   <- case mb_hub of
-                   Nothing  -> createHub' False g_hub hn False
+                   Nothing  -> createHub' False g_hub hn False False
                    Just hub -> return hub
         nks0 <- (map iden2nick . Map.keys) `fmap` packageDB hub
         return $ PD hub (nks0\\nks) (nks\\nks0) nks

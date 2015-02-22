@@ -33,6 +33,7 @@ module Hub.Directory
     ) where
 
 
+import           Control.Applicative
 import qualified Control.Exception      as E
 import           Control.Monad
 import           Data.List
@@ -185,19 +186,22 @@ allocHub =
         prs' _               = Nothing
 
 createHub :: Bool -> Hub -> HubName -> IO ()
-createHub  cp hub0 hn = const () `fmap` createHub' cp hub0 hn False
+createHub  cp hub0 hn = const () `fmap` createHub' cp hub0 hn False False
 
-createHub' :: Bool -> Hub -> HubName -> Bool -> IO Hub
-createHub' cp hub0 hn sf =
+createHub' :: Bool -> Hub -> HubName -> Bool -> Bool -> IO Hub
+createHub' cp hub0 hn sf xf =
      do userHubAvailable hn
-        (h_fp,lib,db) <- user_hub_paths hn
+        (h_fp,lib,db0) <- user_hub_paths hn
+        db <- case xf of
+          True  -> sandbox hub0
+          False -> return db0
         createDirectoryIfMissing True lib
         case cp of
           True  ->
-             do db0 <- hub_user_db hub0
-                cpFileDir db0 db
+             do db_ <- hub_user_db hub0
+                cpFileDir db_ db
           False ->
-                pkg_init hub0 db
+                when (not xf) $ pkg_init hub0 db
         dy <- defaultDirectoryPath
         let gh   = maybe (name__HUB hub0) id $ usr_ghHUB hub0
             lk   = lockedHUB hub0
@@ -474,6 +478,21 @@ not_global hub = when (kind__HUB hub==GlbHK) $
 
 home :: IO FilePath
 home = catchIO (getEnv "HOME") $ \_ -> return "/"
+
+
+
+--
+-- Creating a Cabal Sandbox
+--
+
+sandbox :: Hub -> IO FilePath
+sandbox hub = do
+  execP HubO (EE InheritRS InheritRS [] []) FullMDE hub CabalP ["sandbox","init"]
+  cwd <- getCurrentDirectory
+  dirs <- filter ("ghc" `isInfixOf`) <$> getDirectoryContents ".cabal-sandbox"
+  case dirs of
+    [dir] -> return $ cwd </> ".cabal-sandbox" </> dir
+    _     -> error "no package database located in the sandbox"
 
 
 
