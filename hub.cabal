@@ -1,5 +1,5 @@
 Name:                   hub
-Version:                1.9.0
+Version:                1.9.0.1
 Copyright:              Chris Dornan, 2011-2015
 Maintainer:             Chris Dornan <chris@chrisdornan.com>
 Author:                 Chris Dornan <chris@chrisdornan.com>
@@ -82,6 +82,7 @@ Executable              hub
                         Hub.Commands
                         Hub.SaveLoad
                         Hub.Directory
+                        Hub.Directory.Allocate
                         Hub.Discover
                         Hub.FilePaths
                         Hub.Help
@@ -93,5 +94,6 @@ Executable              hub
                         Hub.Prog
                         Hub.System
                         Hub.Poss
+                        Version
     GHC-options:        -Wall
     Default-language:   Haskell2010
